@@ -1,29 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongoose';
+import { ObjectId, Error } from 'mongoose';
 import { ICustomRequest } from '../types';
-import Card from '../models/card';
-import { ErrorCode, findByIdAndUpdateParams } from '../consts';
+import { StatusCode } from '../consts';
 import RequestError from '../errors/requestErrorConstructor';
+import CardsService from '../services/cardsService';
+
+const cardsService = new CardsService();
 
 export const getCards = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-    const cards = await Card.find({});
-    return res.status(ErrorCode.SUCSESS).send(cards);
+  try {
+    const cards = await cardsService.getCards();
+    return res.status(StatusCode.SUCSESS).send(cards);
   } catch {
-    const error = new RequestError('Произошла техническая ошибка', ErrorCode.SERVER_ERROR)
+    const error = new RequestError('Произошла техническая ошибка', StatusCode.SERVER_ERROR)
     return next(error);
   }
 }
 
 export const createCard = async (req: ICustomRequest, res: Response, next: NextFunction) => {
-  const userId = req?.user?._id;
   try {
-    const card = await Card.create({ ...req.body, owner: userId });
-    return res.status(ErrorCode.CREATED).send(card);
+    const card = await cardsService.createCard(req);
+    return res.status(StatusCode.CREATED).send(card);
   } catch (err) {
-    let error = new RequestError('Произошла техническая ошибка', ErrorCode.SERVER_ERROR);
-    if(err instanceof Error && err.name === 'ValidationError') {
-      error = new RequestError('Переданы некорректные данные', ErrorCode.BAD_REQUEST)
+    let error = new RequestError('Произошла техническая ошибка', StatusCode.SERVER_ERROR);
+    if (err instanceof Error.ValidationError) {
+      error = new RequestError('Переданы некорректные данные', StatusCode.BAD_REQUEST)
     }
     return next(error)
   }
@@ -32,20 +33,22 @@ export const createCard = async (req: ICustomRequest, res: Response, next: NextF
 export const deleteCard = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req?.user?._id;
-    const card = await Card.findById(req.params.cardId);
-    if(!card) {
-      const error = new RequestError('Карточка не найдена', ErrorCode.NOT_FOUND);
+    const cardId = req.params.cardId
+    const card = await cardsService.getCard(cardId);
+    if (!card) {
+      const error = new RequestError('Карточка не найдена', StatusCode.NOT_FOUND);
       return next(error)
     }
-    if(userId !== String(card.owner)) {
-      const error = new RequestError('Вы не можете удалить чужую карточку', ErrorCode.FORBIDDEN);
+    if (userId !== String(card.owner)) {
+      const error = new RequestError('Вы не можете удалить чужую карточку', StatusCode.FORBIDDEN);
       return next(error)
     }
-    return res.status(ErrorCode.SUCSESS).send(card);
+    await cardsService.deleteCard(cardId);
+    return res.status(StatusCode.SUCSESS).send({ message: 'Карточка успешно удалена' });
   } catch (err) {
-    let error = new RequestError('Произошла техническая ошибка', ErrorCode.SERVER_ERROR);
-    if(err instanceof Error && err.name === 'CastError') {
-      error = new RequestError('Передан некоррекный id', ErrorCode.BAD_REQUEST)
+    let error = new RequestError('Произошла техническая ошибка', StatusCode.SERVER_ERROR);
+    if (err instanceof Error.CastError) {
+      error = new RequestError('Передан некоррекный id', StatusCode.BAD_REQUEST)
     }
     return next(error)
   }
@@ -55,16 +58,17 @@ export const likeCard = async (req: ICustomRequest, res: Response, next: NextFun
   const userId = req?.user?._id as ObjectId;
   const cardId = req.params.cardId
   try {
-    const card = await Card.findByIdAndUpdate(cardId, { $addToSet: { likes: userId } }, findByIdAndUpdateParams);
-    if(!card) {
-      const error = new RequestError('Карточка не найдена', ErrorCode.NOT_FOUND);
+    const card = await cardsService.likeCard(cardId, userId);
+    if (!card) {
+      const error = new RequestError('Карточка не найдена', StatusCode.NOT_FOUND);
       return next(error)
     }
-    return res.status(ErrorCode.SUCSESS).send(card);
+
+    return res.status(StatusCode.SUCSESS).send(card);
   } catch (err) {
-    let error = new RequestError('Произошла техническая ошибка', ErrorCode.SERVER_ERROR);
-    if(err instanceof Error && err.name === 'CastError') {
-      error = new RequestError('Передан некоррекный id', ErrorCode.BAD_REQUEST)
+    let error = new RequestError('Произошла техническая ошибка', StatusCode.SERVER_ERROR);
+    if (err instanceof Error.CastError) {
+      error = new RequestError('Передан некоррекный id', StatusCode.BAD_REQUEST)
     }
     return next(error)
   }
@@ -74,16 +78,16 @@ export const dislikeCard = async (req: ICustomRequest, res: Response, next: Next
   const userId = req?.user?._id as ObjectId;
   const cardId = req.params.cardId
   try {
-    const card = await Card.findByIdAndUpdate(cardId, { $pull: { likes: userId } }, findByIdAndUpdateParams);
-    if(!card) {
-      const error = new RequestError('Карточка не найдена', ErrorCode.NOT_FOUND);
+    const card = await cardsService.dislikeCard(cardId, userId);
+    if (!card) {
+      const error = new RequestError('Карточка не найдена', StatusCode.NOT_FOUND);
       return next(error)
     }
-    return res.status(ErrorCode.SUCSESS).status(ErrorCode.SUCSESS).send(card);
+    return res.status(StatusCode.SUCSESS).status(StatusCode.SUCSESS).send(card);
   } catch (err) {
-    let error = new RequestError('Произошла техническая ошибка', ErrorCode.SERVER_ERROR);
-    if(err instanceof Error && err.name === 'CastError') {
-      error = new RequestError('Передан некоррекный id', ErrorCode.BAD_REQUEST)
+    let error = new RequestError('Произошла техническая ошибка', StatusCode.SERVER_ERROR);
+    if (err instanceof Error.CastError) {
+      error = new RequestError('Передан некоррекный id', StatusCode.BAD_REQUEST)
     }
     return next(error)
   }

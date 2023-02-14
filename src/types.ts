@@ -7,7 +7,7 @@ export interface ICustomRequest extends Request {
   };
 };
 
-export type TErrors = 500 | 400 | 404 | 403 | 201 | 200;
+export type TErrors = 500 | 400 | 404 | 403;
 
 export interface ICustomError extends Error {
   statusCode: TErrors,
