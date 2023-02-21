@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { ICustomRequest } from '../types';
-import User from '../models/user';
+import User, { IUser } from '../models/user';
 import { findByIdAndUpdateParams } from '../consts';
 
 class UsersService {
@@ -12,8 +12,8 @@ class UsersService {
     return User.findById(id)
   }
 
-  createUser(req: Request) {
-    return User.create(req.body)
+  createUser(params: IUser) {
+    return User.create(params)
   }
 
   updateUser(req: ICustomRequest) {
@@ -24,6 +24,10 @@ class UsersService {
   updateUserAvatar(req: ICustomRequest) {
     const userId = req.user?._id;
     return User.findByIdAndUpdate(userId, req.body, findByIdAndUpdateParams)
+  }
+
+  findUser(email: string, password: string) {
+    return User.findUserByCredentials(email, password)
   }
 }
 export default UsersService;

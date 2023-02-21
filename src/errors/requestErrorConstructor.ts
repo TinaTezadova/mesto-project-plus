@@ -8,4 +8,4 @@ class RequestError extends Error {
   }
 }
 
-export default RequestError
+export default RequestError;
