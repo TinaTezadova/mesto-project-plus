@@ -1,4 +1,5 @@
 import { model, ObjectId, Schema } from 'mongoose';
+import isURL from 'validator/lib/isURL';
 
 export interface Card {
   name: string;
@@ -13,11 +14,12 @@ const cardSchema = new Schema<Card>({
     type: String,
     minlength: 2,
     maxlength: 30,
-    required: true
+    required: true,
   },
   link: {
     type: String,
-    required: true
+    required: true,
+    validate: [isURL, 'invalid url'],
   },
   owner: {
     type: Schema.Types.ObjectId,
@@ -31,9 +33,8 @@ const cardSchema = new Schema<Card>({
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
-
 
 export default model<Card>('card', cardSchema);

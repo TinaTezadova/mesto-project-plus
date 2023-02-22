@@ -1,4 +1,6 @@
-import { model, Schema, Document, Model } from 'mongoose';
+import {
+  model, Schema, Document, Model,
+} from 'mongoose';
 import bcrypt from 'bcryptjs';
 import isEmail from 'validator/lib/isEmail';
 import isURL from 'validator/lib/isURL';
@@ -21,7 +23,7 @@ const userSchema = new Schema<IUser>({
     type: String,
     minlength: 2,
     maxlength: 30,
-    default: 'Жак-Ив Кусто'
+    default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
@@ -32,23 +34,22 @@ const userSchema = new Schema<IUser>({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    validate: [ isURL, 'invalid url' ]
+    validate: [isURL, 'invalid url'],
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    validate: [ isEmail, 'invalid email' ]
+    validate: [isEmail, 'invalid email'],
   },
   password: {
     type: String,
     required: true,
-    select: false
-  }
+    select: false,
+  },
 });
 
-
-userSchema.statics.findUserByCredentials =  function findUserByCredentials(email: string, password: string) {
+userSchema.statics.findUserByCredentials = function findUserByCredentials(email: string, password: string) {
   return this.findOne({ email }).select('+password')
     .then((user: IUser) => {
       if (!user) {
@@ -64,8 +65,6 @@ userSchema.statics.findUserByCredentials =  function findUserByCredentials(email
           return user;
         });
     });
-}
-
-
+};
 
 export default model<TUserDocument, IUserModel>('user', userSchema);

@@ -1,12 +1,12 @@
 import { ObjectId } from 'mongoose';
-import { ICustomRequest } from 'types';
+import { ICustomRequest } from '../types';
 import { IUser } from '../models/user';
 import Card from '../models/card';
 import { findByIdAndUpdateParams } from '../consts';
 
 class CardsService {
   getCards() {
-    return Card.find({})
+    return Card.find({});
   }
 
   getCard(id: string) {
@@ -33,4 +33,4 @@ class CardsService {
   }
 }
 
-export default CardsService
+export default CardsService;

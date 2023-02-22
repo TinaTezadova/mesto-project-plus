@@ -6,4 +6,4 @@ const router = Router();
 router.use('/users', usersRouter);
 router.use('/cards', cardsRouter);
 
-export default router
+export default router;
