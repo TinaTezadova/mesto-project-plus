@@ -1,17 +1,16 @@
 import { config } from 'dotenv';
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { errors } from 'celebrate';
 import mongoose from 'mongoose';
 import path from 'path';
 import routes from './routes';
-import { ICustomError } from './types';
-import { login, createUser} from './controllers/users';
+import { login, createUser } from './controllers/users';
 import auth from './middlewares/auth';
 import { requestLogger, errorLogger } from './middlewares/logger';
 import { getCelebrationConfForLogin } from './utils';
-import { errorHandler } from './middlewares/error-handler';
+import errorHandler from './middlewares/error-handler';
 
-config({ path: path.join(__dirname, '..', '.env') })
+config({ path: path.join(__dirname, '..', '.env') });
 
 const { PORT } = process.env;
 const app = express();

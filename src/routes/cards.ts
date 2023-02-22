@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { Joi } from 'celebrate';
-import { getCards, deleteCard, createCard, likeCard, dislikeCard } from '../controllers/cards'
+import {
+  getCards, deleteCard, createCard, likeCard, dislikeCard,
+} from '../controllers/cards';
 import { getCelebrateConfig } from '../utils';
 
 const cardRouter = Router();

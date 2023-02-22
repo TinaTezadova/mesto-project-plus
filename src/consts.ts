@@ -1,7 +1,7 @@
 export const findByIdAndUpdateParams = {
   new: true,
-  runValidators: true
-}
+  runValidators: true,
+};
 
 export enum StatusCode {
   SUCSESS = 200,
