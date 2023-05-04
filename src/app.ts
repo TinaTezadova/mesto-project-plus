@@ -19,6 +19,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(requestLogger);
 
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 app.post('/signin', getCelebrationConfForLogin(), login);
 app.post('/signup', getCelebrationConfForLogin(), createUser);
 app.use(auth);
